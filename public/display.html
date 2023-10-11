@@ -1,0 +1,289 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Display</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="bootstrap.css">
+        <script src="vue.js"></script>
+    </head>
+
+    <body>
+        <div id="vapp">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="container">
+                            <div class="row">
+                                <h3 >Battery Left: {{ leftBattery ? formatBatteryName(leftBattery) : 'Not Connected'}}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="container">
+                            <div class="row">
+                                <h3>Battery Right: {{ rightBattery ? formatBatteryName(rightBattery) : 'Not Connected' }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- use this block to render left/right frames side by side (wrapping in with oceanflight frames) using framesToDisplay -->
+                <div class="row">
+                    <template v-for="frame in framesToDisplay">
+                        <template v-if="oceanflightFrames.includes(frame)">
+                            <div class="card col-md-3" :key="frame">
+                                <div class="card-title my-1">
+                                    <h5 class="mx-1">{{ displayNames[frame] != undefined ? displayNames[frame] : frame }}</h5>
+                                </div>
+                                <div v-if="Object.keys(topRowData).includes(frame)" class="card-body">
+                                    <h1 v-if="typeof topRowData[frame] =='number'" class="mx-2 text-nowrap">{{ formatDisplayNumber(topRowData[frame]) }}</h1>
+                                    <h1 v-else-if="topRowData[frame]" class="mx-2 text-nowrap">{{ topRowData[frame] }}</h1>
+                                    <h1 v-else>X</h1>                            
+                                </div>
+                                <div v-else class="card-body">
+                                    <h1>X</h1>
+                                </div>
+                            </div>
+                        </template>
+                        <template v-else-if="jetfoilerFrames.includes(frame)">
+                            <!-- left battery frame -->
+                            <div class="card col-md-3" :key="'left'+frame">
+                                <div class="card-title my-1">
+                                    <h5 class="mx-1">Left:{{formatBatteryName(leftBattery) + displayNames[frame] != undefined ? displayNames[frame] : frame }}</h5>
+                                </div>
+                                <div v-if="Object.keys(leftContainerData).includes(frame)" class="card-body">
+                                    <h1 v-if="typeof leftContainerData[frame] =='number'" class="mx-2 text-nowrap">{{ formatDisplayNumber(leftContainerData[frame]) }}</h1>
+                                    <h1 v-else-if="leftContainerData[frame]" class="mx-2 text-nowrap">{{ leftContainerData[frame] }}</h1>
+                                    <h1 v-else>X</h1>                            
+                                </div>
+                                <div v-else class="card-body">
+                                    <h1>X</h1>
+                                </div>
+                            </div>
+                            <!-- right battery frame -->
+                            <div class="card col-md-3" :key="'right'+frame">
+                                <div class="card-title my-1">
+                                    <h5 class="mx-1">Right:{{formatBatteryName(rightBattery) + displayNames[frame] != undefined ? displayNames[frame] : frame }}</h5>
+                                </div>
+                                <div v-if="Object.keys(rightContainerData).includes(frame)" class="card-body">
+                                    <h1 v-if="typeof rightContainerData[frame] =='number'" class="mx-2 text-nowrap">{{ formatDisplayNumber(rightContainerData[frame]) }}</h1>
+                                    <h1 v-else-if="rightContainerData[frame]" class="mx-2 text-nowrap">{{ rightContainerData[frame] }}</h1>
+                                    <h1 v-else>X</h1>                            
+                                </div>
+                                <div v-else class="card-body">
+                                    <h1>X</h1>
+                                </div>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+                <!-- uncomment to render top row data (oceanflight) -->
+                <!-- <div class="row">
+                    <div v-for="frame in framesToDisplay" class="card col-md-3" :key="frame">
+                        <div class="card-title my-1">
+                            <h5 class="mx-1">{{ displayNames[frame] != undefined ? displayNames[frame] : frame }}</h5>
+                        </div>
+                        <div v-if="Object.keys(topRowData).includes(frame)" class="card-body">
+                            <h1 v-if="typeof topRowData[frame] =='number'" class="mx-2 text-nowrap">{{ formatDisplayNumber(topRowData[frame]) }}</h1>
+                            <h1 v-else-if="topRowData[frame]" class="mx-2 text-nowrap">{{ topRowData[frame] }}</h1>
+                            <h1 v-else>X</h1>                            
+                        </div>
+                        <div v-else class="card-body">
+                            <h1>X</h1>
+                        </div>
+                    </div>
+                </div> -->
+                <!-- row two, side by side containers for battery left/right data -->
+                <div class="row">
+                    <!-- left container -->
+                    <div class="col-md-6">
+                        <div class="container">
+                            <div class="row">
+                                <!-- uncomment to display left battery data -->
+                                <!-- <div v-for="frame in jetfoilerFrames" class="card col-md-6" :key="frame">
+                                    <div class="card-title my-1">
+                                        <h5 class="mx-1">{{ displayNames[frame] != undefined ? displayNames[frame] : frame }}</h5>
+                                    </div>
+                                    <div v-if="Object.keys(leftContainerData).includes(frame)" class="card-body">
+                                        <h1 v-if="typeof leftContainerData[frame] =='number'" class="mx-2 text-nowrap">{{ formatDisplayNumber(leftContainerData[frame]) }}</h1>
+                                        <h1 v-else class="mx-2 text-nowrap">{{ leftContainerData[frame] }}</h1>
+                                    </div>
+                                    <div v-else class="card-body">
+                                        <h1>X</h1>
+                                    </div>
+                                </div> -->
+                                <div class="my-5">
+                                    <button v-on:click="restartMqttClient('left')" class="btn btn-primary btn-sm mx-1">fix frozen oceanflight data (restart mqtt)</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- right container -->
+                    <div class="col-md-6">
+                        <div class="container">
+                            <div class="row">
+                                <!-- uncomment to display right battery data -->
+                                <!-- <div v-for="frame in jetfoilerFrames" class="card col-md-6" :key="frame">
+                                    <div class="card-title my-1">
+                                        <h5 class="mx-1">{{ displayNames[frame] != undefined ? displayNames[frame] : frame }}</h5>
+                                    </div>
+                                    <div v-if="Object.keys(rightContainerData).includes(frame)" class="card-body">
+                                        <h1 v-if="typeof rightContainerData[frame] =='number'" class="mx-2 text-nowrap">{{ formatDisplayNumber(rightContainerData[frame]) }}</h1>
+                                        <h1 v-else class="mx-2 text-nowrap">{{ rightContainerData[frame] }}</h1>
+                                    </div>
+                                    <div v-else class="card-body">
+                                        <h1>X</h1>
+                                    </div>
+                                </div> -->
+                                <div class="my-5">
+                                    <button v-on:click="restartMqttClient('right')" class="btn btn-primary btn-sm mx-1">fix frozen oceanflight data (restart mqtt)</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const vueApp = new Vue({
+            el: '#vapp',
+            data() {
+                return {
+                    leftBattery: null,
+                    rightBattery: null,
+                    topRowData: {},
+                    leftContainerData: {},
+                    rightContainerData: {},
+                    oceanflightControl: true,
+                    // frames to render in order they are defined
+                    framesToDisplay: [
+                        'oceanflight_speedKnots',
+                        'battCurrent',
+                        'oceanflight_angleFlapFrontDegrees',
+                        'oceanflight_angleFlapLeftDegrees',
+                        'oceanflight_angleFlapRightDegrees',
+                        'soc',
+                        'rpm',
+                        'rxDeratePct'
+                    ],
+                    // jetfoiler frames rendered in order they are defined
+                    jetfoilerFrames: [
+                        'battCurrent',
+                        'battVoltage',
+                        'soc',
+                        'rpm',
+                        'rxDeratePct'
+                    ],
+                    // oceanflight freames rendered in ordered they are defined
+                    oceanflightFrames: [
+                        // 'oceanflight_longitude',
+                        // 'oceanflight_latitude',
+                        // 'oceanflight_speedMs',
+                        'oceanflight_speedKnots',
+                        'oceanflight_angleFlapFrontDegrees',
+                        'oceanflight_angleFlapLeftDegrees',
+                        'oceanflight_angleFlapRightDegrees',
+                        // 'oceanflight_angleFlapFrontMm',
+                        // 'oceanflight_angleFlapRightMm',
+                        // 'oceanflight_angleFlapLeftMm',
+                        // 'oceanflight_rudderMm',
+                        // 'oceanflight_pitch',
+                        // 'oceanflight_roll',
+                        // 'oceanflight_yaw',
+                        // 'oceanflight_height',
+                        // 'oceanflight_motorLeft',
+                        // 'oceanflight_motorRight',
+                        // 'oceanflight_thrustCmd',
+                    ],
+                    displayNames: {
+                        soc: "SOC %",
+                        rpm: "RPM",
+                        battCurrent: "AMPS",
+                        battVoltage: "VOLTAGE",
+                        throttleRaw: "THROTTLE RAW",
+                        rxDeratePct: "RX DERATE %",
+
+                        oceanflight_longitude: 'longitude',
+                        oceanflight_latitude: 'latitude',
+                        oceanflight_speedMs: 'speedMs',
+                        oceanflight_speedKnots: 'speed (Knots)',
+                        oceanflight_pitch: 'pitch',
+                        oceanflight_roll: 'roll',
+                        oceanflight_yaw: 'yaw',
+                        oceanflight_height: 'height',
+                        oceanflight_angleFlapFrontMm: 'frontFlapMm',
+                        oceanflight_angleFlapRightMm: 'rightFlapMm',
+                        oceanflight_angleFlapLeftMm: 'leftFlapMm',
+                        oceanflight_angleFlapFrontDegrees: 'Front Flap Degrees',
+                        oceanflight_angleFlapLeftDegrees: 'Left Flap Degrees',
+                        oceanflight_angleFlapRightDegrees: 'Right Flap Degrees',
+                        oceanflight_rudderMm: 'rudderMm',
+                        oceanflight_motorLeft: 'mtrL',
+                        oceanflight_motorRight: 'mtrR',
+                        oceanflight_thrustCmd: 'thrustCmd',
+                    },
+                    hideFieldWhenOceanFlightIsOn: [
+                        'rpm',
+                        'msBetweenRadioPackets',
+                        'throttleRaw',
+                        'speed'
+                    ],
+                }
+            },
+            methods: {
+                restartMqttClient(source) {
+                    socket.emit('command', {
+                        cmd: 'restartMqttClient',
+                        battery: source
+                    });
+                },
+                formatDisplayNumber(num) {
+                    let stringNum = num.toFixed(2).toString();
+                    if (stringNum.length > 5) {
+                        return stringNum.split('.')[0];
+                    } else {
+                        return stringNum;
+                    }
+                },
+                formatBatteryName(battery) {
+                    if (battery == undefined) {
+                        return '';
+                    }
+                    const serialArr = battery.split('-')
+                    if (serialArr.length >= 4) {
+                        return `${parseInt(serialArr[3])}/${parseInt(serialArr[2])}`
+                    } else {
+                        return battery;
+                    }
+                }
+            },
+            compute: {}
+        })
+        const socket = io();
+        const dumpPageSocket = io('/display');
+        dumpPageSocket.emit('command', {
+            cmd: 'delayTimeout',
+            durationSec: 86400 // 24 hours
+        })
+
+        dumpPageSocket.on('sendDisplayData', (msg) => {
+            vueApp.leftBattery = msg.leftData.senderHost;
+            vueApp.rightBattery = msg.rightData.senderHost;
+
+            vueApp.topRowData = msg.topData;
+            vueApp.leftContainerData = msg.leftData;
+            vueApp.rightContainerData = msg.rightData;
+
+            // unit conversion logic
+            vueApp.topRowData.oceanflight_speedKnots = msg.topData.oceanflight_speedMs ?  msg.topData.oceanflight_speedMs * 1.94384: null;
+            const flapMeasurementScalar = -2.37;
+            vueApp.topRowData.oceanflight_angleFlapFrontDegrees = msg.topData.oceanflight_angleFlapFrontMm ? msg.topData.oceanflight_angleFlapFrontMm * flapMeasurementScalar  : null;
+            vueApp.topRowData.oceanflight_angleFlapLeftDegrees = msg.topData.oceanflight_angleFlapLeftMm ? msg.topData.oceanflight_angleFlapLeftMm * flapMeasurementScalar: null;
+            vueApp.topRowData.oceanflight_angleFlapRightDegrees = msg.topData.oceanflight_angleFlapRightMm ? msg.topData.oceanflight_angleFlapRightMm * flapMeasurementScalar: null;
+            // console.log(JSON.stringify(vueApp.topRowData, null, 2));
+        });
+    </script>
+    </body>
+</html>
