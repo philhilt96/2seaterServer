@@ -161,6 +161,7 @@
                     framesToDisplay: [
                         'oceanflight_speedKnots',
                         'battCurrent',
+                        'battPower',
                         'oceanflight_angleFlapFrontDegrees',
                         'oceanflight_angleFlapLeftDegrees',
                         'oceanflight_angleFlapRightDegrees',
@@ -171,7 +172,7 @@
                     // jetfoiler frames rendered in order they are defined
                     jetfoilerFrames: [
                         'battCurrent',
-                        'battVoltage',
+                        'battPower',
                         'soc',
                         'rpm',
                         'rxDeratePct'
@@ -201,6 +202,7 @@
                         soc: "SOC %",
                         rpm: "RPM",
                         battCurrent: "AMPS",
+                        battPower: "POWER (kW)",
                         battVoltage: "VOLTAGE",
                         throttleRaw: "THROTTLE RAW",
                         rxDeratePct: "RX DERATE %",
@@ -277,6 +279,11 @@
             vueApp.rightContainerData = msg.rightData;
 
             // unit conversion logic
+            vueApp.leftContainerData['battPower'] = (msg.leftData.battCurrent & msg.leftData.battVoltage) ?
+                msg.leftData.battCurrent * msg.leftData.battVoltage : null;
+            vueApp.rightContainerData['battPower'] = (msg.rightData.battCurrent & msg.rightData.battVoltage) ?
+                msg.rightData.battCurrent * msg.rightData.battVoltage : null;
+
             vueApp.topRowData.oceanflight_speedKnots = msg.topData.oceanflight_speedMs ?  msg.topData.oceanflight_speedMs * 1.94384: null;
             const flapMeasurementScalar = -2.37;
             vueApp.topRowData.oceanflight_angleFlapFrontDegrees = msg.topData.oceanflight_angleFlapFrontMm ? msg.topData.oceanflight_angleFlapFrontMm * flapMeasurementScalar  : null;
